@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tung Tung Turret - Terminal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f0f0f, #1a1a1a, #2c2c2c);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .navbar {
+            background-color: rgba(27, 27, 27, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 255, 195, 0.1);
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            color: #00ffc3;
+            text-shadow: 0 0 10px rgba(0, 255, 195, 0.3);
+        }
+
+        .terminal-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .terminal-window {
+            background: #0d1117;
+            border: 1px solid #21262d;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+        }
+
+        .terminal-header {
+            background: #21262d;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid #30363d;
+        }
+
+        .terminal-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: none;
+        }
+
+        .btn-close { background: #ff5f56; }
+        .btn-minimize { background: #ffbd2e; }
+        .btn-maximize { background: #27ca3f; }
+
+        .terminal-title {
+            margin-left: 15px;
+            font-size: 0.9rem;
+            color: #7d8590;
+        }
+
+        .terminal-output {
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            height: 500px;
+            overflow-y: auto;
+            background: #0d1117;
+            color: #e6edf3;
+        }
+
+        .terminal-input {
+            display: flex;
+            padding: 10px 20px;
+            background: #0d1117;
+            border-top: 1px solid #21262d;
+            align-items: center;
+        }
+
+        .terminal-prompt {
+            color: #00ffc3;
+            margin-right: 8px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .terminal-command {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #e6edf3;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .command-output {
+            margin: 5px 0;
+        }
+
+        .output-success { color: #3fb950; }
+        .output-error { color: #f85149; }
+        .output-warning { color: #d29922; }
+        .output-info { color: #58a6ff; }
+        .output-system { color: #7c3aed; }
+
+        .command-history {
+            background: rgba(31, 31, 31, 0.8);
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .history-item {
+            padding: 8px 12px;
+            margin: 5px 0;
+            background: rgba(64, 64, 64, 0.3);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .history-item:hover {
+            background: rgba(0, 255, 195, 0.1);
+        }
+
+        .quick-commands {
+            background: rgba(31, 31, 31, 0.8);
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .quick-cmd-btn {
+            background: linear-gradient(45deg, #404040, #6c757d);
+            border: 1px solid #555;
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: 6px;
+            margin: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .quick-cmd-btn:hover {
+            background: linear-gradient(45deg, #00ffc3, #00cc99);
+            border-color: #00ffc3;
+            color: #000;
+        }
+
+        .typing-indicator {
+            color: #7d8590;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .autocomplete {
+            position: absolute;
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .autocomplete-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .autocomplete-item:hover,
+        .autocomplete-item.selected {
+            background: #00ffc3;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="index.html">Tung Tung Turret</a>
+        <span class="navbar-text">Terminal</span>
+    </div>
+</nav>
+
+<div class="terminal-container">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="terminal-window">
+                <div class="terminal-header">
+                    <button class="terminal-button btn-close"></button>
+                    <button class="terminal-button btn-minimize"></button>
+                    <button class="terminal-button btn-maximize"></button>
+                    <span class="terminal-title">tung-tung-turret@esp32:~$</span>
+                </div>
+                <div class="terminal-output" id="terminal-output">
+                    <div class="command-output output-system">Tung Tung Turret Terminal v1.0</div>
+                    <div class="command-output output-system">ESP32-CAM Controller Console</div>
+                    <div class="command-output">Type 'help' for available commands</div>
+                    <div class="command-output">&nbsp;</div>
+                    <div class="command-output output-success">System initialized successfully</div>
+                    <div class="command-output output-info">WiFi connected to TungTungNet</div>
+                    <div class="command-output output-info">IP Address: 192.168.1.100</div>
+                    <div class="command-output">&nbsp;</div>
+                </div>
+                <div class="terminal-input">
+                    <span class="terminal-prompt">tung-tung$</span>
+                    <input type="text" class="terminal-command" id="command-input" autocomplete="off" placeholder="Enter command...">
+                    <div class="autocomplete" id="autocomplete"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="quick-commands">
+                <h5 style="color: #00ffc3; margin-bottom: 15px;">Quick Commands</h5>
+                <div class="quick-cmd-btn" onclick="executeQuickCommand('status')">status</div>
+                <div class="quick-cmd-btn" onclick="executeQuickCommand('wifi info')">wifi info</div>
+                <div class="quick-cmd-btn" onclick="executeQuickCommand('camera test')">camera test</div>
+                <div class="quick-cmd-btn" onclick="executeQuickCommand('servo center')">servo center</div>
+                <div class="quick-cmd-btn" onclick="executeQuickCommand('led on')">led on</div>
+                <div class="quick-cmd-btn" onclick="executeQuickCommand('led off')">led off</div>
+                <div class="quick-cmd-btn" onclick="executeQuickCommand('temp')">temp</div>
+                <div class="quick-cmd-btn" onclick="executeQuickCommand('reboot')">reboot</div>
+                <div class="quick-cmd-btn" onclick="executeQuickCommand('log')">log</div>
+                <div class="quick-cmd-btn" onclick="executeQuickCommand('clear')">clear</div>
+            </div>
+
+            <div class="command-history">
+                <h5 style="color: #00ffc3; margin-bottom: 15px;">Command History</h5>
+                <div id="history-list">
+                    <div class="history-item" onclick="useHistoryCommand(this)">status</div>
+                    <div class="history-item" onclick="useHistoryCommand(this)">wifi info</div>
+                    <div class="history-item" onclick="useHistoryCommand(this)">help</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const commandInput = document.getElementById('command-input');
+    const terminalOutput = document.getElementById('terminal-output');
+    const autocomplete = document.getElementById('autocomplete');
+    const historyList = document.getElementById('history-list');
+
+    let commandHistory = ['status', 'wifi info', 'help'];
+    let historyIndex = -1;
+
+    const commands = {
+        'help': {
+            description: 'Show available commands',
+            execute: () => {
+                return [
+                    { text: 'Available Commands:', type: 'info' },
+                    { text: '  help              - Show this help message', type: '' },
+                    { text: '  status            - Show system status', type: '' },
+                    { text: '  wifi info         - Show WiFi information', type: '' },
+                    { text: '  wifi scan         - Scan for WiFi networks', type: '' },
+                    { text: '  camera test       - Test camera functionality', type: '' },
+                    { text: '  camera stream     - Start/stop camera stream', type: '' },
+                    { text: '  servo <action>    - Control servos (center, test)', type: '' },
+                    { text: '  led <on/off>      - Control LED', type: '' },
+                    { text: '  fire              - Fire shot', type: '' },
+                    { text: '  temp              - Show temperature', type: '' },
+                    { text: '  voltage           - Show voltage levels', type: '' },
+                    { text: '  log               - Show system log', type: '' },
+                    { text: '  reboot            - Restart system', type: '' },
+                    { text: '  clear             - Clear terminal', type: '' }
+                ];
+            }
+        },
+        'status': {
+            description: 'Show system status',
+            execute: () => [
+                { text: 'System Status:', type: 'info' },
+                { text: '  Turret:     Online', type: 'success' },
+                { text: '  Camera:     Active', type: 'success' },
+                { text: '  WiFi:       Connected', type: 'success' },
+                { text: '  Servos:     Ready', type: 'success' },
+                { text: '  Ammunition: 67%', type: 'warning' },
+                { text: '  Temperature: 42°C', type: '' },
+                { text: '  Uptime:     2h 34m', type: '' }
+            ]
+        },
+        'wifi info': {
+            description: 'Show WiFi information',
+            execute: () => [
+                { text: 'WiFi Information:', type: 'info' },
+                { text: '  SSID:       TungTungNet', type: '' },
+                { text: '  IP Address: 192.168.1.100', type: '' },
+                { text: '  Gateway:    192.168.1.1', type: '' },
+                { text: '  Signal:     -45 dBm (Strong)', type: 'success' },
+                { text: '  MAC:        AA:BB:CC:DD:EE:FF', type: '' }
+            ]
+        },
+        'wifi scan': {
+            description: 'Scan for WiFi networks',
+            execute: () => {
+                setTimeout(() => {
+                    addToTerminal([
+                        { text: 'WiFi Networks Found:', type: 'info' },
+                        { text: '  TungTungNet      -45 dBm  [WPA2]', type: 'success' },
+                        { text: '  HomeNetwork      -67 dBm  [WPA2]', type: '' },
+                        { text: '  OpenWiFi         -73 dBm  [Open]', type: 'warning' },
+                        { text: '  Neighbor_5G      -82 dBm  [WPA2]', type: '' }
+                    ]);
+                }, 1500);
+                return [{ text: 'Scanning for WiFi networks...', type: 'info' }];
+            }
+        },
+        'camera test': {
+            description: 'Test camera functionality',
+            execute: () => {
+                setTimeout(() => {
+                    addToTerminal([
+                        { text: 'Camera test completed', type: 'success' },
+                        { text: '  Resolution: 800x600', type: '' },
+                        { text: '  FPS: 15', type: '' },
+                        { text: '  Quality: Good', type: 'success' }
+                    ]);
+                }, 2000);
+                return [{ text: 'Testing camera...', type: 'info' }];
+            }
+        },
+        'camera stream': {
+            description: 'Control camera stream',
+            execute: () => [
+                { text: 'Camera stream started', type: 'success' },
+                { text: 'Stream URL: http://192.168.1.100:8080', type: 'info' }
+            ]
+        },
+        'servo center': {
+            description: 'Center servos',
+            execute: () => [
+                { text: 'Centering servos...', type: 'info' },
+                { text: 'Pan servo: 90°', type: '' },
+                { text: 'Tilt servo: 45°', type: '' },
+                { text: 'Servos centered', type: 'success' }
+            ]
+        },
+        'servo test': {
+            description: 'Test servos',
+            execute: () => {
+                setTimeout(() => {
+                    addToTerminal([
+                        { text: 'Servo test completed', type: 'success' },
+                        { text: 'All servos responding correctly', type: 'success' }
+                    ]);
+                }, 3000);
+                return [{ text: 'Testing servos...', type: 'info' }];
+            }
+        },
+        'led on': {
+            description: 'Turn LED on',
+            execute: () => [{ text: 'LED turned on', type: 'success' }]
+        },
+        'led off': {
+            description: 'Turn LED off',
+            execute: () => [{ text: 'LED turned off', type: 'success' }]
+        },
+        'fire': {
+            description: 'Fire shot',
+            execute: () => [
+                { text: 'FIRE!', type: 'warning' },
+                { text: 'Shot fired successfully', type: 'success' },
+                { text: 'Ammunition: 66%', type: 'warning' }
+            ]
+        },
+        'temp': {
+            description: 'Show temperature',
+            execute: () => [
+                { text: 'Temperature readings:', type: 'info' },
+                { text: '  ESP32 Chip: 42°C', type: '' },
+                { text: '  Camera:     38°C', type: '' },
+                { text: '  Ambient:    24°C', type: '' }
+            ]
+        },
+        'voltage': {
+            description: 'Show voltage levels',
+            execute: () => [
+                { text: 'Voltage levels:', type: 'info' },
+                { text: '  VCC:        3.3V', type: 'success' },
+                { text: '  Battery:    7.2V', type: 'success' },
+                { text: '  Servo:      5.0V', type: 'success' }
+            ]
+        },
+        'log': {
+            description: 'Show system log',
+            execute: () => [
+                { text: 'Recent system log entries:', type: 'info' },
+                { text: '[12:30:15] System started', type: '' },
+                { text: '[12:30:16] Camera initialized', type: '' },
+                { text: '[12:30:17] Servos calibrated', type: '' },
+                { text: '[12:30:45] Low ammunition warning', type: 'warning' },
+                { text: '[12:31:02] Target detected', type: '' },
+                { text: '[12:31:03] Shot fired', type: '' }
+            ]
+        },
+        'reboot': {
+            description: 'Restart system',
+            execute: () => {
+                setTimeout(() => {
+                    terminalOutput.innerHTML = '';
+                    addToTerminal([
+                        { text: 'Tung Tung Turret Terminal v1.0', type: 'system' },
+                        { text: 'ESP32-CAM Controller Console', type: 'system' },
+                        { text: 'Type \'help\' for available commands', type: '' },
+                        { text: '', type: '' },
+                        { text: 'System rebooted successfully', type: 'success' }
+                    ]);
+                }, 2000);
+                return [
+                    { text: 'Rebooting system...', type: 'warning' },
+                    { text: 'Goodbye!', type: '' }
+                ];
+            }
+        },
+        'clear': {
+            description: 'Clear terminal',
+            execute: () => {
+                terminalOutput.innerHTML = '';
+                return [];
+            }
+        }
+    };
+
+    function executeCommand(cmd) {
+        const trimmedCmd = cmd.trim().toLowerCase();
+
+        if (trimmedCmd === '') return;
+
+        addToTerminal([{ text: `tung-tung$ ${cmd}`, type: '' }]);
+
+        if (!commandHistory.includes(cmd)) {
+            commandHistory.unshift(cmd);
+            if (commandHistory.length > 10) {
+                commandHistory.pop();
+            }
+            updateHistoryDisplay();
+        }
+
+        if (commands[trimmedCmd]) {
+            const output = commands[trimmedCmd].execute();
+            if (output.length > 0) {
+                addToTerminal(output);
+            }
+        } else if (trimmedCmd.startsWith('servo ')) {
+            const action = trimmedCmd.split(' ')[1];
+            if (action === 'center' || action === 'test') {
+                const output = commands[`servo ${action}`].execute();
+                addToTerminal(output);
+            } else {
+                addToTerminal([{ text: `Unknown servo action: ${action}`, type: 'error' }]);
+            }
+        } else if (trimmedCmd.startsWith('led ')) {
+            const state = trimmedCmd.split(' ')[1];
+            if (state === 'on' || state === 'off') {
+                const output = commands[`led ${state}`].execute();
+                addToTerminal(output);
+            } else {
+                addToTerminal([{ text: `Invalid LED state: ${state}`, type: 'error' }]);
+            }
+        } else {
+            addToTerminal([{ text: `Command not found: ${trimmedCmd}`, type: 'error' }]);
+        }
+
+        addToTerminal([{ text: '', type: '' }]);
+    }
+
+    function addToTerminal(outputs) {
+        outputs.forEach(output => {
+            const div = document.createElement('div');
+            div.className = `command-output ${output.type ? 'output-' + output.type : ''}`;
+            div.textContent = output.text;
+            terminalOutput.appendChild(div);
+        });
+        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+    }
+
+    function executeQuickCommand(cmd) {
+        commandInput.value = cmd;
+        executeCommand(cmd);
+        commandInput.value = '';
+    }
+
+    function useHistoryCommand(element) {
+        commandInput.value = element.textContent;
+        commandInput.focus();
+    }
+
+    function updateHistoryDisplay() {
+        historyList.innerHTML = '';
+        commandHistory.slice(0, 8).forEach(cmd => {
+            const div = document.createElement('div');
+            div.className = 'history-item';
+            div.textContent = cmd;
+            div.onclick = () => useHistoryCommand(div);
+            historyList.appendChild(div);
+        });
+    }
+
+    function showAutocomplete(input) {
+        const matches = Object.keys(commands).filter(cmd =>
+            cmd.toLowerCase().startsWith(input.toLowerCase())
+        );
+
+        if (matches.length === 0 || input === '') {
+            autocomplete.style.display = 'none';
+            return;
+        }
+
+        autocomplete.innerHTML = '';
+        matches.forEach(match => {
+            const div = document.createElement('div');
+            div.className = 'autocomplete-item';
+            div.textContent = match;
+            div.onclick = () => {
+                commandInput.value = match;
+                autocomplete.style.display = 'none';
+                commandInput.focus();
+            };
+            autocomplete.appendChild(div);
+        });
+
+        autocomplete.style.display = 'block';
+    }
+
+    commandInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            const cmd = commandInput.value;
+            executeCommand(cmd);
+            commandInput.value = '';
+            autocomplete.style.display = 'none';
+            historyIndex = -1;
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (historyIndex < commandHistory.length - 1) {
+                historyIndex++;
+                commandInput.value = commandHistory[historyIndex];
+            }
+        } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (historyIndex > 0) {
+                historyIndex--;
+                commandInput.value = commandHistory[historyIndex];
+            } else if (historyIndex === 0) {
+                historyIndex = -1;
+                commandInput.value = '';
+            }
+        } else if (e.key === 'Tab') {
+            e.preventDefault();
+            const firstMatch = autocomplete.querySelector('.autocomplete-item');
+            if (firstMatch) {
+                commandInput.value = firstMatch.textContent;
+                autocomplete.style.display = 'none';
+            }
+        } else if (e.key === 'Escape') {
+            autocomplete.style.display = 'none';
+        }
+    });
+
+    commandInput.addEventListener('input', (e) => {
+        showAutocomplete(e.target.value);
+    });
+
+    commandInput.addEventListener('blur', () => {
+        setTimeout(() => {
+            autocomplete.style.display = 'none';
+        }, 200);
+    });
+
+    commandInput.focus();
+</script>
+</body>
+</html>
