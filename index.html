@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tung Tung Turret - Schulprojekt</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f0f0f, #1a1a1a, #2c2c2c);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .navbar {
+            background-color: rgba(27, 27, 27, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 255, 195, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            color: #00ffc3;
+            text-shadow: 0 0 10px rgba(0, 255, 195, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand:hover {
+            color: #00cc99;
+            text-shadow: 0 0 20px rgba(0, 255, 195, 0.6);
+            transform: scale(1.05);
+        }
+
+        .hero {
+            text-align: center;
+            padding: 100px 20px 60px;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 1px;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, #00ffc3, transparent);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #00ffc3, #00cc99, #00ffc3);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: textGlow 3s ease-in-out infinite;
+            text-shadow: 0 0 30px rgba(0, 255, 195, 0.3);
+        }
+
+        @keyframes textGlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            color: #ccc;
+            margin-bottom: 40px;
+            opacity: 0;
+            animation: fadeInUp 1s ease 0.5s forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .btn-custom {
+            background: linear-gradient(45deg, #404040, #6c757d);
+            color: #fff;
+            padding: 18px 35px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-content: center;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            transition: all 0.4s ease;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-custom::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 195, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-custom:hover {
+            background: linear-gradient(45deg, #5a6268, #00ffc3);
+            border-color: #00ffc3;
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(0, 255, 195, 0.3);
+            color: #000;
+        }
+
+        .btn-custom:hover::before {
+            left: 100%;
+        }
+
+        .btn-custom svg {
+            transition: transform 0.3s ease;
+        }
+
+        .btn-custom:hover svg {
+            transform: rotate(360deg);
+        }
+
+        .button-section {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 25px;
+            margin: 50px 0;
+            padding: 0 20px;
+        }
+
+        .buy-section {
+            text-align: center;
+            margin: 60px 0;
+            position: relative;
+        }
+
+        .buy-section::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(0, 255, 195, 0.1), transparent);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: breathe 4s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.2); }
+        }
+
+        .buy-section .btn {
+            background: linear-gradient(45deg, #00ffc3, #00cc99);
+            color: #000;
+            font-weight: bold;
+            padding: 20px 50px;
+            font-size: 1.3rem;
+            border-radius: 15px;
+            transition: all 0.4s ease;
+            border: none;
+            box-shadow: 0 5px 20px rgba(0, 255, 195, 0.4);
+            position: relative;
+            z-index: 2;
+        }
+
+        .buy-section .btn:hover {
+            background: linear-gradient(45deg, #00cc99, #00ffc3);
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 255, 195, 0.6);
+        }
+
+        .team {
+            text-align: center;
+            font-size: 1rem;
+            color: #ccc;
+            margin-bottom: 80px;
+            padding: 0 20px;
+        }
+
+        .team h2 {
+            margin-bottom: 40px;
+            color: #00ffc3;
+            font-size: 2rem;
+        }
+
+        .team ul {
+            list-style: none;
+            padding: 0;
+            max-width: 400px;
+            margin: 20px auto;
+            background: rgba(31, 31, 31, 0.8);
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 255, 195, 0.1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .team li {
+            padding: 20px;
+            font-weight: 500;
+            background-color: rgba(34, 34, 34, 0.8);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+            border-bottom: 1px solid #333;
+        }
+
+        .team li:last-child {
+            border-bottom: none;
+        }
+
+        .team li:hover {
+            background-color: rgba(0, 255, 195, 0.1);
+            color: #00ffc3;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transform: scale(1.02);
+            z-index: 10;
+            box-shadow: 0 5px 15px rgba(0, 255, 195, 0.3);
+        }
+
+        .tooltip {
+            position: fixed;
+            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+            color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            font-size: 0.9rem;
+            max-width: 300px;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            border: 1px solid #00ffc3;
+        }
+
+        .tooltip.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .tooltip::before {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: #00ffc3;
+        }
+
+        .footer {
+            background: rgba(15, 15, 15, 0.9);
+            padding: 40px 0;
+            text-align: center;
+            border-top: 1px solid #333;
+            margin-top: 60px;
+        }
+
+        .footer a {
+            color: #00ffc3;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer a:hover {
+            color: #00cc99;
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #00ffc3;
+            border-radius: 50%;
+            animation: float 20s linear infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(100px);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="particles" id="particles"></div>
+
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="index.html">Tung Tung Turret</a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" href="impressum.html">Impressum</a>
+        </div>
+    </div>
+</nav>
+
+<div class="hero">
+    <h1>Tung Tung Turret</h1>
+    <p>Automatisiertes Turret mit ESP32-CAM</p>
+</div>
+
+<div class="button-section">
+    <a href="control.html" class="btn btn-custom">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 17.5c-4.14 0-7.5-3.36-7.5-7.5S7.86 4.5 12 4.5 19.5 7.86 19.5 12 16.14 19.5 12 19.5zm-1-7.5h2v2h-2zm0-6h2v5h-2z"/>
+        </svg>
+        Control Center
+    </a>
+    <a href="dev.html" class="btn btn-custom">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0L19.2 12l-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/>
+        </svg>
+        Dev Panel
+    </a>
+    <a href="terminal.html" class="btn btn-custom">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M2 3h20v18H2V3zm2 2v14h16V5H4zm2.5 3L10 12l-3.5 4-.9-1.1L7.8 12 5.6 9.1 6.5 8zM13 16h5v-2h-5v2z"/>
+        </svg>
+        Terminal
+    </a>
+</div>
+
+<div class="buy-section">
+    <a href="https://vjizan-ch.myshopify.com/" class="btn">Jetzt kaufen</a>
+</div>
+
+<div class="team">
+    <h2>Projektteam</h2>
+    <ul>
+        <li data-info="CEO - Chief Executive Officer. Leitung des gesamten Projekts und strategische Entscheidungen. E-Mail: pascal.hornbanger@edu.htl-klu.at">Pascal Hornbanger</li>
+        <li data-info="CTO - Chief Technology Officer. Verantwortlich für technische Architektur und Innovation. E-Mail: ferdinand.gebenetter@edu.htl-klu.at">Ferdinand Gebenetter</li>
+        <li data-info="CSDO & CFDO - Chief Software/Firmware Development Officer. Leitung der Software- und Firmware-Entwicklung. E-Mail: michael.hammer@edu.htl-klu.at">Michael Hammer</li>
+        <li data-info="CQO, CSDO & CFDO - Chief Quality Officer und Chief Software/Firmware Development Officer. Qualitätssicherung und Entwicklung. E-Mail: luka.kaiser@edu.htl-klu.at">Luka Kaiser</li>
+        <li data-info="Documentation Manager - Verantwortlich für Projektdokumentation und technische Unterlagen. E-Mail: fabian.forstner@edu.htl-klu.at">Fabian Forstner</li>
+        <li data-info="CPO - Chief Product Officer. Produktentwicklung und -management. E-Mail: christian.isak@edu.htl-klu.at">Christian Isak</li>
+        <li data-info="CTO - Chief Technology Officer. Co-Leitung der technischen Entwicklung. E-Mail: maximilian.ferner@edu.htl-klu.at">Maximilian Ferner</li>
+        <li data-info="CMO - Chief Marketing Officer. Marketing und Kommunikation. E-Mail: lukas.hillebrand@edu.htl-klu.at">Lukas Hillebrand</li>
+    </ul>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<footer class="footer">
+    <div class="container">
+        <p>&copy; 2025 Tung Tung Turret Team. Alle Rechte vorbehalten.</p>
+        <p><a href="impressum.html">Impressum</a> | Ein Schulprojekt der HTL Mössingerstraße</p>
+    </div>
+</footer>
+
+<script>
+    function createParticles() {
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 20 + 's';
+            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            particlesContainer.appendChild(particle);
+        }
+    }
+
+    function initTooltips() {
+        const teamMembers = document.querySelectorAll('.team li');
+        const tooltip = document.getElementById('tooltip');
+
+        teamMembers.forEach(member => {
+            member.addEventListener('mouseenter', (e) => {
+                const info = e.target.getAttribute('data-info');
+                tooltip.innerHTML = info;
+                tooltip.classList.add('show');
+
+                const rect = e.target.getBoundingClientRect();
+
+                const tooltipLeft = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2);
+                const tooltipTop = rect.top - tooltip.offsetHeight - 15;
+
+                tooltip.style.left = Math.max(10, Math.min(tooltipLeft, window.innerWidth - tooltip.offsetWidth - 10)) + 'px';
+                tooltip.style.top = Math.max(10, tooltipTop) + 'px';
+            });
+
+            member.addEventListener('mouseleave', () => {
+                tooltip.classList.remove('show');
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        createParticles();
+        initTooltips();
+    });
+</script>
+</body>
+</html>
